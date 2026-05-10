@@ -136,7 +136,7 @@ const FiltroCategoria = ({ categoriaAtiva, onSelectCategoria }) => {
                         Todas
                     </button>
 
-                    {categorias.map((categoria, index) => (
+                    {Array.isArray(categorias) && categorias.map((categoria, index) => (
                         <button
                             key={categoria.id || index}
                             onClick={() => onSelectCategoria(categoria)}

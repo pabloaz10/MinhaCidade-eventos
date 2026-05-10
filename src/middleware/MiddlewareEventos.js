@@ -131,12 +131,12 @@ class MiddlewareEventos {
                 ]);
 
                 // Se a API retornou eventos, use-os
-                if (eventos && eventos.length > 0) {
+                if (Array.isArray(eventos) && eventos.length > 0) {
                     this.#eventosCache = eventos;
                     this.#ultimaAtualizacao.eventos = Date.now();
 
                     // Armazenar categorias no cache também
-                    if (categorias && categorias.length > 0) {
+                    if (Array.isArray(categorias) && categorias.length > 0) {
                         this.#categoriasCache = categorias;
                         this.#ultimaAtualizacao.categorias = Date.now();
                     }
@@ -170,7 +170,7 @@ class MiddlewareEventos {
      */
     static async verificarExistenciaEventos() {
         await this.inicializarCache();
-        return this.#eventosCache && this.#eventosCache.length > 0;
+        return Array.isArray(this.#eventosCache) && this.#eventosCache.length > 0;
     }
 
     /**
@@ -196,7 +196,7 @@ class MiddlewareEventos {
             }
         }
 
-        const eventos = this.#eventosCache || [];
+        const eventos = Array.isArray(this.#eventosCache) ? this.#eventosCache : [];
 
         // Se não precisa filtrar, retorna todos os eventos
         if (!somenteAtivos) return eventos;
@@ -216,6 +216,7 @@ class MiddlewareEventos {
         if (!this.#eventosCache) return null;
 
         // Primeiro verifica no cache para evitar requisição
+        if (!Array.isArray(this.#eventosCache)) return null;
         const eventoCache = this.#eventosCache.find(evento => evento.id === id);
         if (eventoCache) return eventoCache;
 
@@ -249,14 +250,14 @@ class MiddlewareEventos {
         await this.inicializarCache();
 
         // Se já temos categorias em cache e não expirou, use-as
-        if (this.#categoriasCache && !this.#cacheExpirou('categorias')) {
+        if (Array.isArray(this.#categoriasCache) && !this.#cacheExpirou('categorias')) {
             return this.#categoriasCache;
         }
 
         // Tenta buscar categorias da API
         try {
             const categoriasApi = await apiService.getCategorias();
-            if (categoriasApi && categoriasApi.length > 0) {
+            if (Array.isArray(categoriasApi) && categoriasApi.length > 0) {
                 this.#categoriasCache = categoriasApi;
                 this.#ultimaAtualizacao.categorias = Date.now();
                 this.#salvarCacheNoStorage();
@@ -267,12 +268,12 @@ class MiddlewareEventos {
         }
 
         // Se já temos categorias em cache mesmo que expirado, use-as como fallback
-        if (this.#categoriasCache) {
+        if (Array.isArray(this.#categoriasCache)) {
             return this.#categoriasCache;
         }
 
         // Fallback: extrair dos eventos
-        if (!this.#eventosCache || this.#eventosCache.length === 0) return [];
+        if (!Array.isArray(this.#eventosCache) || this.#eventosCache.length === 0) return [];
 
         const categorias = [...new Set(this.#eventosCache
             .filter(evento => evento.categoria)
