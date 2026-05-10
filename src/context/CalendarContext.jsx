@@ -35,15 +35,17 @@ export const CalendarProvider = ({ children }) => {
         const eventos = await MiddlewareEventos.obterTodosEventos();
 
         // Processa cada evento para criar o mapa
-        eventos.forEach(event => {
-            const eventDate = toDate(event.data);
-            if (eventDate && eventDate >= startDate && eventDate <= endDate) {
-                const dateKey = getDateKey(eventDate);
-                if (dateKey) {
-                    result[dateKey] = true;
+        if (Array.isArray(eventos)) {
+            eventos.forEach(event => {
+                const eventDate = toDate(event.data);
+                if (eventDate && eventDate >= startDate && eventDate <= endDate) {
+                    const dateKey = getDateKey(eventDate);
+                    if (dateKey) {
+                        result[dateKey] = true;
+                    }
                 }
-            }
-        });
+            });
+        }
 
         // Debug específico para os dias problemáticos
         if (monthsAhead === 1) { // Só executar na primeira carga
